@@ -58,8 +58,8 @@ toggleIngredient : function(ingredient) {
         sandwichHasIngredient = true;
         selectedSandwich.ingredients.push(ingredient.name)
     }
-    saveSelectedSandwich()
-    renderCart()
+    cart.saveSelectedSandwich()
+    cart.render()
     ingredientList.render()
 }
 }

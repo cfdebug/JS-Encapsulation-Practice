@@ -1,25 +1,26 @@
+const cart = {
 // The array of sandwiches the user is ordering. 
 //  This will be updated after we fetch.
-let items = [];
+items : [],
 
 // The sandwich selected in the cart (defaults to the first sandwich)
-let selectedSandwich = null;
+selectedSandwich : null,
 
 // Updates the DOM to display a list of sandwiches from the cart
-function renderCart() {
+render : function() {
     const sandwichUl = document.querySelector('.sandwich-list');
 
     // Empty the sandwichUl before adding any content to it.
     sandwichUl.innerHTML = '';
 
     items.forEach((sandwich) => {
-        const sandwichDiv = createSandwichCard(sandwich);
+        const sandwichDiv = cart.createSandwichCard(sandwich);
         sandwichUl.append(sandwichDiv)
     })
-}
+},
 
 // Creates a DIV to display a single sandwich
-function createSandwichCard(sandwich) {
+createSandwichCard : function(sandwich) {
     const sandwichCard = document.createElement('div');
     sandwichCard.className = selectedSandwich.id === sandwich.id ? 'm-3 card border-primary' : 'm-3 card'
     sandwichCard.style.cursor = 'pointer';
@@ -35,26 +36,26 @@ function createSandwichCard(sandwich) {
 
     // When a sandwich card is clicked, select it.
     sandwichCard.addEventListener('click', () => {
-        selectSandwich(sandwich)
+        cart.selectSandwich(sandwich)
     })
 
     // Add a button to copy a sandwich
     const duplicateButton = sandwichCard.querySelector('.duplicate-button')
     duplicateButton.addEventListener('click', () => {
-        duplicateSandwich(sandwich)
+        cart.duplicateSandwich(sandwich)
     })
 
     // Add a button to delete a sandwich
     const deleteButton = sandwichCard.querySelector('.delete-button')
     deleteButton.addEventListener('click', (e) => {
-        deleteSandwich(sandwich)
+        cart.deleteSandwich(sandwich)
     })
 
     return sandwichCard
-}
+},
 
 // We'll use this function anytime we need to change the selected sandwich
-function selectSandwich(sandwich) {
+selectSandwich : function(sandwich) {
     selectedSandwich = sandwich
 
     const breadRadio = document.querySelector(`[value="${sandwich.bread}"]`)
@@ -63,13 +64,13 @@ function selectSandwich(sandwich) {
     const nameInput = document.querySelector(`.name-input`)
     nameInput.value = sandwich.name
 
-    renderCart()
+    cart.render()
     ingredientList.render()
-}
+},
 
 // We'll use this function to save the sandwich, either
 //  when we've added/removed ingredients, or changed the type of bread.
-async function saveSelectedSandwich() {
+saveSelectedSandwich : async function() {
 
     // Save the sandwich on the server
     fetch(`http://localhost:3001/cart/${selectedSandwich.id}`, {
@@ -79,10 +80,10 @@ async function saveSelectedSandwich() {
         },
         body: JSON.stringify(selectedSandwich)
     })
-}
+},
 
 // Runs when the user clicks 'Duplicate' on a sandwich card
-async function duplicateSandwich(sandwich) {
+duplicateSandwich : async function(sandwich) {
     let newSandwich = {
         name: sandwich.name,
         bread: sandwich.bread,
@@ -101,11 +102,11 @@ async function duplicateSandwich(sandwich) {
     newSandwich = await response.json()
 
     items.push(newSandwich)
-    selectSandwich(newSandwich)
-}
+    cart.selectSandwich(newSandwich)
+},
 
 // Runs when the user clicks 'Delete' on a sandwich card
-async function deleteSandwich(sandwich) {
+deleteSandwich : async function(sandwich) {
     // Can't delete the last sandwich in the cart
     if (items.length === 1) {
         return
@@ -119,14 +120,14 @@ async function deleteSandwich(sandwich) {
     // Remove the sandwich locally
     items = items.filter(x => x !== sandwich)
     if (selectedSandwich.id === sandwich.id) {
-        selectSandwich(items[0])
+        cart.selectSandwich(items[0])
     } else {
-        renderCart()
+        cart.render()
     }
-}
+},
 
 // Runs when the user clicks 'Add Sandwich'
-async function addSandwich() {
+addSandwich : async function() {
     let newSandwich = {
         name: 'Unnamed',
         bread: 'White',
@@ -147,17 +148,18 @@ async function addSandwich() {
     newSandwich = await response.json()
 
     items.push(newSandwich)
-    selectSandwich(newSandwich)
-}
+    cart.selectSandwich(newSandwich)
+},
 
-function changeSelectedSandwichName(value) {
+changeSelectedSandwichName : function(value) {
     selectedSandwich.name = value
-    saveSelectedSandwich()
-    renderCart()
-}
+    cart.saveSelectedSandwich()
+    cart.render()
+},
 
-function changeSelectedSandwichBread(value) {
+changeSelectedSandwichBread : function(value) {
     selectedSandwich.bread = value
-    saveSelectedSandwich()
-    renderCart()
+    cart.saveSelectedSandwich()
+    cart.render()
+}
 }
